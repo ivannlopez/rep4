@@ -1,0 +1,141 @@
+table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+div.invoice_title{
+    padding-bottom: 20px;
+    padding-top: 5px;
+    border: 2px solid;
+    font-size: 22px;
+    font-weight: bolder;
+    width: 300px;
+    text-align: center;
+    height: 60px;
+    vertical-align: top;
+}
+
+div.invoice_title_usa {
+    padding-bottom: 20px;
+    padding-top: 5px;
+    border: 2px solid;
+    font-size: 20px;
+    font-weight: bolder;
+    width: 130px;
+    text-align: center;
+    height: 40px;
+    vertical-align: top;
+}
+
+table.debug, table.debug td {
+    border: 1px solid;
+}
+
+.border2t {
+    border-top: solid 2px;
+}
+
+.border2b {
+    border-bottom: solid 2px;
+}
+
+.border2l {
+    border-left: solid 2px;
+}
+
+.border2r {
+    border-right: solid 2px;
+}
+
+.mt_head {
+    background-color: #D4D4D4;
+    vertical-align: top;
+}
+
+.mt_total {
+    background-color: #C0C0C0;
+}
+
+.mt_bhead {
+    border-right: solid 10px #FFF;
+}
+
+.mt_row {
+    padding-top: 10px;
+}
+
+.va_top {
+    vertical-align: top;
+}
+
+.va_mid {
+    vertical-align: middle;
+}
+
+.fcc0 {
+    color: #C0C0C0;
+}
+
+.fc80 {
+    color: #808080;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.font-bolder {
+    font-weight: bolder;
+}
+
+.font10 {
+    font-size: 10px;
+}
+
+.pl5 {
+    padding-left: 5px;
+}
+
+.pr5 {
+    padding-right: 5px;
+}
+
+.nowrap {
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
+    max-width: 600px;
+    margin: 0px;
+}
+
+.nowrap_payment {
+    overflow-wrap: break-word; 
+    word-wrap: break-word; 
+    max-width: 650px;
+    margin: 0px;
+    font-size: 0.8em;
+}
+
+.field_title {
+    background-color: #e2e2e2;
+    text-align: center;
+}
+
+.font_bold {
+    font-weight: bold;
+}
+
+.font_bolder {
+    font-weight: bolder;
+}
+
+div.secborder {
+    background-color: #7b7b7b;
+    height: 15px;
+}
+
+.sectitle {
+    background-color: #2f5496;
+    color: #FFFFFF;
+    font-size: 1.1em;
+    font-weight: bolder;
+}

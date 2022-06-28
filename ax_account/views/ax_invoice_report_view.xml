@@ -1,0 +1,869 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <template id="assets_common_account_invoice_report_custom" inherit_id="web.report_assets_common">
+        <xpath expr="." position="inside">
+            <link href="/ax_account/static/src/css/report.css" rel="stylesheet" type="text/css"/>
+        </xpath>
+    </template>
+
+    <record id="ax_invoice_report_paper_format" model="report.paperformat">
+        <field name="name">US Letter Quotation</field>
+        <field name="format">Letter</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+        <field name="header_spacing">10</field>
+        <field name="dpi">80</field>
+    </record>
+
+    <record id="account.account_invoices_without_payment" model="ir.actions.report">
+        <field name="paperformat_id" ref="ax_invoice_report_paper_format"/>
+    </record>
+
+    <record id="account.account_invoices" model="ir.actions.report">
+        <field name="paperformat_id" ref="ax_invoice_report_paper_format"/>
+        <field name="report_name">account.report_invoice</field>
+    </record>
+
+    <record id="sale.report_invoice_document_inherit_sale" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="sale_stock.report_invoice_document_inherit_sale_stock" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="l10n_mx_edi.report_invoice_document_mx" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="account.report_invoice_document_with_payments" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="l10n_mx_edi_external_trade.report_invoice_documement_external_trade" model="ir.ui.view">
+        <field name="active" eval="False"/>
+    </record>
+
+    <template id="account_invoice_report_document_usa_view">
+
+        <t t-call="web.basic_layout">
+
+            <t t-foreach="docs" t-as="o">
+                
+                <t t-set="o" t-value="o.with_context({'lang': lang})"/>
+
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora"/>
+
+                <t t-set="company" t-value="o.company_id"/>
+                <t t-set="so_id" t-value="o.get_related_so()"/>
+
+                <div class="page" style="font-size: 11px">
+
+                    <table>
+                        <tr>
+                            <td>
+                                <t t-if="o.type == 'out_invoice'">
+                                    <div class="invoice_title_usa">INVOICE</div>
+                                </t>
+                                <t t-if="o.type == 'out_refund'">
+                                    <div class="invoice_title_usa">CREDIT NOTE</div>
+                                </t>
+                            </td>
+                            <td class="text-right">
+                                <t t-if="company.logo">
+                                    <img style="max-height: 50px;" t-attf-src="data:image/*;base64,{{company.logo}}"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                &amp;nbsp;
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="va_top">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span class="font-bolder">Bill To:</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class="font-bolder" t-esc="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>                                                                                
+                                        <td>                                            
+                                            <span t-if="o.partner_id.street" t-esc="o.partner_id.street"/>
+                                            <span t-if="o.partner_id.street2" t-esc="o.partner_id.street2"/>
+                                        </td>                                            
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-field="o.partner_id.city"/>
+                                            <span t-if="o.partner_id.city and o.partner_id.state_id">,</span>
+                                            <span t-if="o.partner_id.state_id" t-field="o.partner_id.state_id.code"/>
+                                            <span t-if="o.partner_id.country_id" t-field="o.partner_id.country_id.name"/>
+                                            <span t-if="o.partner_id.zip" t-field="o.partner_id.zip"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-if="o.partner_id.vat" t-field="o.partner_id.vat"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-if="so_id.number_order">Purchase Order #: <t t-esc="so_id.number_order"/></span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class="font-bolder">Ship to:</span>
+                                        </td>
+                                    </tr>
+                                    <tr>                                                                                
+                                        <td>                                            
+                                            <span t-if="o.partner_shipping_id.street" t-esc="o.partner_shipping_id.street"/>
+                                            <span t-if="o.partner_shipping_id.street2" t-esc="o.partner_shipping_id.street2"/>
+                                            <span t-if="o.partner_shipping_id.zip">
+                                                C.P.: <t t-esc="o.partner_shipping_id.zip"/>
+                                            </span>
+                                            <span t-if="o.partner_shipping_id.city">
+                                                - <t t-esc="o.partner_shipping_id.city"/>
+                                            </span>
+                                            <span t-if="o.partner_shipping_id.state_id">
+                                                - <t t-esc="o.partner_shipping_id.state_id.code"/>
+                                            </span>
+                                            <span t-if="o.partner_shipping_id.country_id">
+                                                - <t t-esc="o.partner_shipping_id.country_id.name"/>
+                                            </span>
+                                        </td>                                            
+                                    </tr>
+                                </table>
+                            </td>
+                            <td class="va_top">
+                                <table class="text-right">
+                                    <tr>
+                                        <td>Invoice No.</td>
+                                        <td><span t-if="o.number" t-field="o.number"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Date:</td>
+                                        <td><span t-if="o.date_invoice" t-field="o.date_invoice"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Terms:</td>
+                                        <td><span t-field="o.payment_term_id"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr class="border2t" style="margin-bottom: 5px"/>
+
+                    <table id="table_detail">
+                        <thead>
+                            <tr>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 80px">
+                                    QTY.
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead">
+                                    DESCRIPTION
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 120px">
+                                    UNIT <br/>
+                                    PRICE
+                                </th>
+                                <th class="mt_head text-center va_top" style="width: 120px">
+                                    TOTAL
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                <tr>
+                                    <td class="mt_row va_top text-center"><span t-field="line.quantity"/></td>
+                                    <td class="mt_row va_top pl5">
+                                        <span t-field="line.name"/>
+
+                                        <t t-foreach="line.get_serial_nums()" t-as="serial_num">
+                                            <div>
+                                                Serial number: <t t-esc="serial_num.name"/>
+                                            </div>
+                                        </t>
+
+                                        <!--
+                                        <t t-foreach="line.selec_transferencias" t-as="transference">
+                                            <t t-foreach="transference.move_line_ids_without_package" t-as="stock_picking_line">
+                                                <span>
+                                                    Serial number: <t t-esc="stock_picking_line.lot_id.name"/>
+                                                </span>
+                                            </t>
+                                        </t>
+                                        -->
+
+                                    </td>
+                                    <td class="mt_row va_top text-right pr5">
+                                        <span t-field="line.price_unit" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                    </td>
+                                    <td class="mt_row va_top text-right">
+                                        <span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-field="line.amount_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="4"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot class="border2t">
+                            <tr>
+                                <td class="va_top" colspan="2" style="padding-top: 20px">
+                                    <strong>Notes:</strong>
+                                    <p t-field="o.comment"></p>
+                                </td>
+                                <td colspan="2">
+                                    <table id="table_total">
+                                        <tr>
+                                            <td class="va_mid font-bolder text-right">
+                                                TOTAL
+                                            </td>
+                                            <td class="text-right va_mid">
+                                                <span t-field="o.amount_untaxed"/>
+                                            </td>
+                                        </tr>
+                                        <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                                            <tr>
+                                                <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
+                                                    <td class="va_mid font-bolder text-right"><span t-esc="amount_by_group[0]"/></td>
+                                                    <td class="text-right o_price_total va_mid">
+                                                        <span t-esc="amount_by_group[3]"/>
+                                                    </td>
+                                                </t>
+                                                <t t-else="">
+                                                    <td class="va_mid font-bolder text-right">
+                                                        <span t-esc="amount_by_group[0]"/>
+                                                        <span>&amp;nbsp;<span>on</span>
+                                                            <t t-esc="amount_by_group[4]"/>
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-right o_price_total va_mid">
+                                                        <span t-esc="amount_by_group[3]"/>
+                                                    </td>
+                                                </t>
+                                            </tr>
+                                        </t>    
+                                        <tr class="mt_total">
+                                            <td class="va_mid font-bolder text-right">
+                                                TOTAL
+                                            </td>
+                                            <td class="text-right o_price_total va_mid">
+                                                <span t-field="o.currency_id"/> <span t-field="o.amount_total"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+
+                <div class="footer border2t" style="font-size: 9px; vertical-align: top; text-align: center">
+                    <table>
+                        <tr>
+                            <td>
+                                <span class="font-bolder" t-field="o.company_id.name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <t t-set="company_id" t-value="o.company_id.sudo()"/>
+                                <span t-field="company_id.name"/> |
+                                <span t-if="company_id.street" t-esc="company_id.street"/>
+                                <span t-if="company_id.street2" t-esc="company_id.street2"/>
+                                <span t-if="company_id.city">, <t t-esc="company_id.city"/></span>
+                                <span t-if="company_id.state_id" t-esc="company_id.state_id.code"/>
+                                <span t-if="company_id.zip" t-esc="company_id.zip"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span t-if="company_id.vat">
+                                    TAX ID <t t-esc="company_id.vat"/> |
+                                </span>
+                                <span t-if="company_id.phone">
+                                    Ph. <strong t-esc="company_id.phone"/>
+                                </span>
+                                <span t-if="company_id.phone and company_id.website"> | </span>
+                                <span t-if="company_id.website" t-esc="company_id.website"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Page <span class="page"/> of <span class="topage"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <script>
+                    var tableT = document.getElementById("table_total"),
+                    tableD = document.getElementById("table_detail");
+                    if(tableT.offsetHeight &lt; 110) tableT.style.height = "110px";
+                    if(tableD.offsetHeight &lt; 875) tableD.style.height = "720px";
+                </script>
+
+            </t>
+
+        </t>
+
+    </template>
+
+    <template id="account_invoice_report_document_mx_view">
+
+        <t t-call="web.basic_layout">
+
+            <t t-foreach="docs" t-as="o">
+
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora"/>
+
+                <t t-set="company" t-value="o.company_id"/>
+                <t t-set="so_id" t-value="o.get_related_so()"/>
+                <t t-set="shipping_id" t-value="so_id.supplier_shipping_addresses_ids[0] if so_id.supplier_shipping_addresses_ids else o.partner_shipping_id"/>
+                <t t-if="o.l10n_mx_edi_cfdi_uuid">
+                    <t t-set="xml" t-value="o.l10n_mx_edi_get_xml_etree()"/>
+                    <t t-set="tfd" t-value="o.l10n_mx_edi_get_tfd_etree(xml)"/>
+                    <t t-set="tfd_original_string" t-value="o._get_l10n_mx_edi_cadena()"/>
+                </t>
+
+                <div class="page" style="font-size: 11px">
+
+                    <table>
+                        <tr>
+                            <td>
+                                <t t-if="o.type == 'out_invoice'">
+                                    <div class="invoice_title">FACTURA</div>
+                                </t>
+                                <t t-if="o.type == 'out_refund'">
+                                    <div class="invoice_title">NOTA DE CRÉDITO</div>
+                                </t>
+                            </td>
+                            <td class="text-right">
+                                <t t-if="company.logo">
+                                    <img style="max-height: 50px;" t-attf-src="data:image/*;base64,{{company.logo}}"/>
+                                </t>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align: right;">
+                                <table class="text-right" style="width: 400px; margin-left: auto; margin-right: 0px;">
+                                    <tr>
+                                        <td class="fcc0">
+                                            <span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="'%s%s' % (xml.get('Serie'), xml.get('Folio'))"/>
+                                        </td>
+                                        <td class="fc80">
+                                            <span t-field="o.number"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="va_top">
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <span class="font-bolder" t-esc="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>                                                                                
+                                        <td>                                            
+                                            <span t-if="o.partner_id.street" t-esc="o.partner_id.street"/>
+                                            <span t-if="o.partner_id.street2" t-esc="o.partner_id.street2"/>
+                                            <span t-if="o.partner_id.l10n_mx_edi_colony">
+                                                , <t t-esc="o.partner_id.l10n_mx_edi_colony"/>
+                                            </span>
+                                        </td>                                            
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-field="o.partner_id.city"/>
+                                            <span t-if="o.partner_id.city and o.partner_id.state_id">,</span>
+                                            <span t-if="o.partner_id.state_id" t-field="o.partner_id.state_id.code"/>
+                                            <span t-if="o.partner_id.country_id" t-field="o.partner_id.country_id.name"/>
+                                            <span t-if="o.partner_id.zip" t-field="o.partner_id.zip"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-if="o.partner_id.vat" t-field="o.partner_id.vat"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span t-if="so_id.number_order">Su Orden de Compra: <t t-esc="so_id.number_order"/></span>
+                                            <br/><br/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class="font-bolder">Destino de embarque:</span>
+                                        </td>
+                                    </tr>
+                                    <tr>                                                                                
+                                        <td>                                            
+                                            <span t-if="shipping_id.street" t-esc="shipping_id.street"/>
+                                            <span t-if="shipping_id.street2" t-esc="shipping_id.street2"/>
+                                            <span t-if="shipping_id.zip">
+                                                C.P.: <t t-esc="shipping_id.zip"/>
+                                            </span>
+                                            <span t-if="shipping_id.l10n_mx_edi_colony">
+                                                - <t t-esc="shipping_id.l10n_mx_edi_colony"/>
+                                            </span>
+                                            <span t-if="shipping_id.city">
+                                                - <t t-esc="shipping_id.city"/>
+                                            </span>
+                                            <span t-if="shipping_id.state_id">
+                                                - <t t-esc="shipping_id.state_id.code"/>
+                                            </span>
+                                            <span t-if="shipping_id.country_id">
+                                                - <t t-esc="shipping_id.country_id.name"/>
+                                            </span>
+                                        </td>                                            
+                                    </tr>
+                                </table>
+                            </td>
+                            <td class="va_top">
+                                <table class="text-right">
+                                    <tr>
+                                        <td>Folio Comercial No.</td>
+                                        <td><span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="xml.get('Folio')"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fecha Emisión:</td>
+                                        <td><span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="xml.get('Fecha', '').replace('T', ' ')"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Fecha Certificación:</td>
+                                        <td><span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="tfd.get('FechaTimbrado', '').replace('T', ' ')"/></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <t t-if="not o.l10n_mx_edi_cfdi_uuid and o.l10n_mx_edi_is_required()">
+                        <!-- due to HTML preview for device responsive -->
+                        <button t-attf-class="mt16 mb16 btn-danger #{'btn' if report_type != 'html' else ''}">
+                            <h3>Se requiere una firma de esta factura, pero no está firmada.</h3>
+                        </button>
+                    </t>
+
+                    <hr class="border2t" style="margin-bottom: 5px"/>
+
+                    <table id="table_detail">
+                        <tbody>
+                            <tr>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 80px">
+                                    CANT.
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 80px">
+                                    U. M.
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 80px">
+                                    Código
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead">
+                                    DESCRIPCIÓN
+                                </th>
+                                <th class="mt_head text-center va_top mt_bhead" style="width: 120px">
+                                    PRECIO <br/>
+                                    UNITARIO
+                                </th>
+                                <th class="mt_head text-center va_top" style="width: 120px">
+                                    TOTAL
+                                </th>
+                            </tr>
+                            <t t-set="tax_types" t-value="{'ISR': '001', 'IVA': '002', 'IEPS': '003'}"/>
+                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                <tr>
+                                    <td class="mt_row va_top text-center"><span t-esc="'%.2f' % line.quantity"/></td>
+                                    <td class="mt_row va_top pl5"><span t-field="line.product_id.uom_id.l10n_mx_edi_code_sat_id"/></td>
+                                    <td class="mt_row va_top pl5"><span t-esc="line.product_id.l10n_mx_edi_code_sat_id.code"/></td>
+                                    <td class="mt_row va_top pl5">
+                                        <span t-field="line.name"/> <br/>
+                                        <t t-foreach="line.invoice_line_tax_ids" t-as="tax_line">
+                                            <t t-set="tag_name" t-value="tax_line.tag_ids.filtered(lambda r: 'Factor:' not in r.name)"/>
+                                            <span t-esc="'Impuesto Trasladado: %s Factor: %.4f' % (tax_types.get(tag_name[0].name if tag_name else '', False), tax_line.amount)"/> <br/>
+                                            <span t-esc="'Importe Trasladado: %.2f' % (float(line.price_subtotal))"/> <br/>
+                                        </t>
+
+                                        <t t-foreach="line.get_serial_nums()" t-as="serial_num">
+                                            <span>
+                                                No. de Serie: <t t-esc="serial_num.name"/>
+                                            </span>
+                                        </t>
+
+
+                                        <!--
+                                        <t t-foreach="line.selec_transferencias" t-as="transference">
+                                            <t t-foreach="transference.move_line_ids_without_package" t-as="stock_picking_line">
+                                                    <span>
+                                                        No. de Serie: <t t-esc="stock_picking_line.lot_id.name"/>
+                                                    </span>
+                                            </t>
+                                        </t>
+                                        -->
+
+
+                                        <span t-if="line.l10n_mx_edi_customs_number">
+                                            Pedimento No.: <t t-esc="line.l10n_mx_edi_customs_number"/>
+                                        </span>
+                                    </td>
+                                    <td class="mt_row va_top text-right pr5">
+                                        <span t-esc="line.price_subtotal / line.quantity" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                    </td>
+                                    <td class="mt_row va_top text-right">
+                                        <span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                                        <span t-field="line.amount_total" groups="account.group_show_line_subtotals_tax_included"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <tr>
+                                <td colspan="6"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6"></td>
+                            </tr>
+                            <tr>
+                                <td colspan="6"></td>
+                            </tr>
+
+                            <table class="font10" t-if="o.l10n_mx_edi_cfdi_uuid">
+                                <tr>
+                                    <td>
+                                        <!-- Test -->
+                                        <table>
+                                            <tr>
+                                                <td class="border2t border2b" style="padding-top: 20px" colspan="6">
+                                                    (<span t-esc="o.l10n_mx_edi_amount_to_text().replace('M.N', '').replace('M.N.', '').replace('M.E.', '')"/> <span t-field="o.currency_id"/>)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border2r border2b va_top" colspan="4">
+                                                    <t t-set="company_regime" t-value="company.partner_id.property_account_position_id"/>
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                Este documento es una representación impresa de un CFDI
+                                                            </td>
+                                                        </tr>
+                                                        <tr t-if="company_regime">
+                                                            <td><t t-esc="company_regime.name"/></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <t t-set="payment_form_types" t-value="{'PPD': 'PPD - Pago en parcialidades o diferido', 'PUE': 'PUE - Pago en una sola exibición', 'NI': 'No identificado'}"/>
+                                                                Método de Pago: <span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="payment_form_types[xml.get('MetodoPago', 'NI')]"/>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                <t t-set="payment_method" t-value="o.l10n_mx_edi_payment_method_id"/>
+                                                                Forma de Pago: <span t-esc="'%s - %s' % (payment_method.code, payment_method.name)" />
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>
+                                                                Folio Fiscal: <span t-if="o.l10n_mx_edi_cfdi_uuid" t-esc="o.l10n_mx_edi_cfdi_uuid"/>
+                                                            </td>
+                                                        </tr>
+                                                        <t t-set="tax_types" t-value="{'001': '001-ISR', '002': '002-IVA', '003': '003-IEPS'}"/>
+                                                        <t t-if="o.l10n_mx_edi_cfdi_uuid">
+                                                            <t t-foreach="xml.Impuestos.xpath('.//cfdi:Traslado', namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})" t-as="ttax">
+                                                                <tr>
+                                                                    <td>
+                                                                        <span t-esc="'Impuesto Trasladado: %s Factor: %.4f Importe Trasladado: %.2f' % (tax_types.get(ttax.get('Impuesto', '')), float(ttax.get('TasaOCuota', 0)) * 100, float(ttax.get('Importe', 0)))"/>
+                                                                    </td>
+                                                                </tr>
+                                                            </t>
+                                                        </t>
+                                                    </table>
+                                                </td>
+                                                <td class="border2b" colspan="2">
+                                                    <table id="table_total">
+                                                        <tr>
+                                                            <td class="va_mid">
+                                                                SUB-TOTAL
+                                                            </td>
+                                                            <td class="text-right va_mid">
+                                                                <span t-field="o.amount_untaxed"/>
+                                                            </td>
+                                                        </tr>
+                                                        <t t-foreach="o.amount_by_group" t-as="amount_by_group">
+                                                            <tr>
+                                                                <t t-if="len(o.tax_line_ids) == 1 and o.amount_untaxed == amount_by_group[2]">
+                                                                    <td class="va_mid"><span t-esc="amount_by_group[0]"/></td>
+                                                                    <td class="text-right o_price_total va_mid">
+                                                                        <span t-esc="amount_by_group[3]"/>
+                                                                    </td>
+                                                                </t>
+                                                                <t t-else="">
+                                                                    <td class="va_mid">
+                                                                        <span t-esc="amount_by_group[0]"/>
+                                                                        <span>&amp;nbsp;<span>on</span>
+                                                                            <t t-esc="amount_by_group[4]"/>
+                                                                        </span>
+                                                                    </td>
+                                                                    <td class="text-right o_price_total va_mid">
+                                                                        <span t-esc="amount_by_group[3]"/>
+                                                                    </td>
+                                                                </t>
+                                                            </tr>
+                                                        </t>
+                                                        <tr class="mt_total">
+                                                            <td class="va_mid">
+                                                                TOTAL
+                                                            </td>
+                                                            <td class="text-right o_price_total va_mid">
+                                                                <span t-field="o.currency_id"/> <span t-field="o.amount_total"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!-- Fin Test -->
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                            <table class="font10" t-if="o.l10n_mx_edi_cfdi_uuid">
+                                <tr>
+                                    <td class="va_top">
+                                        <t t-set="invoice_types" t-value="{'I': 'Ingreso', 'E': 'Egreso'}"/>
+                                        <table>
+                                            <t t-if="o.l10n_mx_edi_cfdi_uuid">
+                                                <t t-set="relation_types" t-value="{ '01': '01-Nota de crédito de los documentos relacionados', '02': '02-Nota de débito de los documentos relacionados', '03': '03-Devolución de mercancía sobre facturas o traslados previos', '04': '04-Sustitución de los CFDI previos', '05': '05-Traslados de mercancias facturados previamente', '06': '06-Factura generada por los traslados previos', '07': '07-CFDI por aplicación de anticipo', '08': '08-Factura generada por pagos en parcialidades', '09': '09-Factura generada por pagos diferidos' }"/>
+                                                <t t-set="cfdi_related" t-value="xml.xpath('.//cfdi:CfdiRelacionados', namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})"/>
+                                                <tr>
+                                                    <td>
+                                                        <table t-if="len(cfdi_related) > 0">
+                                                            <tr>
+                                                                <th colspan="2">
+                                                                    Facturas Relacionadas
+                                                                </th>
+                                                            </tr>
+                                                            <t t-foreach="cfdi_related" t-as="related">
+                                                                <t t-foreach="related.xpath('.//cfdi:CfdiRelacionado', namespaces={'cfdi': 'http://www.sat.gob.mx/cfd/3'})" t-as="related_node">
+                                                                    <tr>
+                                                                        <td>
+                                                                            UUID: <span t-esc="related_node.get('UUID', '')"/>
+                                                                        </td>
+                                                                        <td>
+                                                                            Tipo de Relación: <span t-esc="relation_types.get(related.get('TipoRelacion'), '')"/>
+                                                                        </td>
+                                                                    </tr>
+                                                                </t>
+                                                            </t>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+
+                                            <!-- Test -->
+
+                                            <tr>
+                                                <td>
+                                                    Moneda: <span t-esc="'%s - %s' % (o.currency_id.name, o.currency_id.currency_unit_label)"/> Tipo de cambio: <span t-esc="xml.get('TipoCambio', 1)"/> Tipo de documento: <t t-esc="invoice_types.get(xml.get('TipoDeComprobante'))"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                Versión: 3.3 Numero de Serie del Certificado del SAT:
+                                                            </td>
+                                                            <td class="text-right" style="padding-right: 20px">
+                                                                <span  t-esc="tfd.get('NoCertificadoSAT')"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                                Numero de Serie del Certificado de Sello Digital:
+                                                            </td>
+                                                            <td class="text-right" style="padding-right: 20px">
+                                                                <span t-esc="xml.get('NoCertificado')"/>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Uso CFDI: <span t-esc="xml.Receptor.get('UsoCFDI')"/> - <span t-field="o.l10n_mx_edi_usage"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bolder">
+                                                    Cadena original del complemento de certificación digital del SAT:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <p class="nowrap" t-esc="tfd_original_string"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bolder">
+                                                    Sello digital del emisor:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <p class="nowrap" t-esc="xml.get('Sello', 'No identificado')"/>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="font-bolder">
+                                                    Sello digital del SAT:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <p class="nowrap" t-esc="tfd.get('SelloSAT', 'No identificado')"/>
+                                                </td>
+                                            </tr>
+
+
+                                        </table>
+                                    </td>
+
+                                    <td class="va_top">
+                                        <t t-set="sello" t-value="xml.get('Sello', 'No identificado')[-8:]"/>
+                                        <img style="width: 180px; height: 180px; padding: 10px" alt="Barcode" t-att-src="'/report/barcode/?type=QR&amp;value=%s' % quote_plus('https://verificacfdi.facturaelectronica.sat.gob.mx/default.aspx?' + keep_query(re=o.l10n_mx_edi_cfdi_supplier_rfc, rr=o.l10n_mx_edi_cfdi_customer_rfc, tt=o.l10n_mx_edi_cfdi_amount, id=o.l10n_mx_edi_cfdi_uuid) + '&amp;fe=%s' % quote_plus(sello, 'utf-8', 'strict', '=/').replace('%2B', '+'))"/>
+                                    </td>
+
+                                </tr>
+                            </table>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="border2t footer" style="font-size: 11px; vertical-align: top; text-align: center">
+                    <table>
+                        <tr>
+                            <td>
+                                <span class="font-bolder" t-field="o.company_id.name"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <t t-set="company_id" t-value="o.company_id.sudo()"/>
+                                <span t-if="company_id.vat">
+                                    RFC: <t t-esc="company_id.vat"/> |
+                                </span>
+                                <span t-if="company_id.street" t-esc="company_id.street"/>
+                                <span t-if="company_id.street2" t-esc="company_id.street2"/>
+                                <span t-if="company_id.l10n_mx_edi_colony" t-esc="company_id.l10n_mx_edi_colony"/>
+                                <span t-if="company_id.city">
+                                    , <t t-esc="company_id.city"/>
+                                </span>
+                                <span t-if="company_id.state_id">
+                                    , <t t-esc="company_id.state_id.code"/>
+                                </span>
+                                <span t-if="company_id.zip">
+                                    L.Expedición: C.P. <t t-esc="company_id.zip"/>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+
+                                <span t-if="company_id.phone">
+                                    Tel. <strong t-esc="company_id.phone"/>
+                                </span>
+                                <span t-if="company_id.phone and company_id.website"> | </span>
+                                <span t-if="company_id.website" t-esc="company_id.website"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Página <span class="page"/> de <span class="topage"/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <script>
+                    var tableT = document.getElementById("table_total"),
+                    tableD = document.getElementById("table_detail");
+                    if(tableD.offsetHeight &lt; 575) tableT.style.height = "25px";
+                    if(tableD.offsetHeight &lt; 575) tableD.style.height = "300px";
+                </script>
+
+            </t>
+
+        </t>
+
+    </template>
+
+    <template id="account.report_invoice_document">
+
+        <t t-if="docs[0].sudo().company_id.ax_invoice_format == 'MX'">
+            <t t-call="ax_account.account_invoice_report_document_mx_view"/>
+        </t>
+
+        <t t-if="docs[0].sudo().company_id.ax_invoice_format == 'USA'">
+            <t t-call="ax_account.account_invoice_report_document_usa_view"/>
+        </t>
+
+    </template>
+
+</odoo>

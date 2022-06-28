@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- ACCOUNT INVOICE INHERIT VIEWS -->
+
+    <record id="account_invoice_form_inh" model="ir.ui.view">
+        <field name="name">account_invoice_form_inh</field>
+        <field name="model">account.invoice</field>
+        <field name="inherit_id" ref="account.invoice_form"/>
+        <field name="arch" type="xml">
+
+            <xpath expr="//sheet/group[1]/group[2]//div[1]" position="after">
+                <field name="ax_exchange_rate" readonly="1" force_save="1"/>
+                <field name="origin" invisible="1"/>
+            </xpath>
+
+            <xpath expr="//tree[1]/field[@name='quantity']" position="after">
+                <field name="selec_transferencias" widget="many2many_tags" domain="[('state', '=', 'done'),('picking_type_code', '=', 'outgoing'),('origin', '=', origin)]"/>
+            </xpath>
+        </field>
+
+    </record>
+
+</odoo>
